@@ -1,22 +1,34 @@
 import streamlit as st
-import plotly.express as px
-import pandas as pd
+import folium
+from streamlit_folium import st_folium
+import json
 
-st.title("서울 주요 관광지 지도")
+# 여행한 지역
+visited_places = ['강릉시', '제주시', '순천시']
 
-# 데이터프레임
-df = pd.DataFrame({
-    '장소': ['경복궁', '남산타워'],
-    '위도': [37.5702, 37.5512],
-    '경도': [126.992, 126.9882]
-})
+# 지도 중심
+m = folium.Map(location=[36.5, 127.8], zoom_start=7)
 
-# Plotly 지도 생성
-fig = px.scatter_mapbox(df, lat='위도', lon='경도', text='장소',
-                        zoom=11, height=600)
+# 행정구역 GeoJSON 파일 로드 (시군구)
+with open('skorea_municipalities_geo.json', encoding='utf-8') as f:
+    geo_data = json.load(f)
 
-# 무료 지도 스타일 사용
-fig.update_layout(mapbox_style="open-street-map")
+# 색칠
+for feature in geo_data['features']:
+    name = feature['properties']['name']
+    color = 'red' if name in visited_places else 'gray'
+    
+    folium.GeoJson(
+        feature,
+        style_function=lambda x, color=color: {
+            'fillColor': color,
+            'color': 'black',
+            'weight': 1,
+            'fillOpacity': 0.5 if color == 'red' else 0.1
+        },
+        tooltip=name
+    ).add_to(m)
 
-# ✅ Streamlit에서 출력
-st.plotly_chart(fig)
+# Streamlit에 표시
+st.title("성룡이와 함께한 국내 여행지 지도")
+st_data = st_folium(m, width=700, height=500)
