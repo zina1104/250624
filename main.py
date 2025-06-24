@@ -4,7 +4,7 @@ from streamlit_folium import st_folium
 import json
 
 # 여행한 지역
-visited_places = ['강릉시', '제주시', '순천시']
+visited_places = ['제주시', '여수시', '철원군']
 
 # 지도 중심
 m = folium.Map(location=[36.5, 127.8], zoom_start=7)
