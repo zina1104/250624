@@ -2,87 +2,82 @@ import streamlit as st
 import folium
 from streamlit_folium import st_folium
 import json
+import os
+from PIL import Image
+import uuid
 
-st.set_page_config(layout="wide")
-st.title("📸 성룡이와 함께한 여행지 감성 지도")
-st.caption("여행했던 지역은 컬러풀하게 강조되며, 클릭하면 사진과 에피소드가 나와요.")
+# 폴더 준비
+UPLOAD_FOLDER = "uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# 🌈 감성 팔레트 (다채로운 색상)
-color_palette = [
-    "#E63946",  # 빨강
-    "#F4A261",  # 오렌지
-    "#2A9D8F",  # 청록
-    "#A8DADC",  # 민트
-    "#457B9D",  # 파랑
-    "#B5838D",  # 장미빛
-    "#6D6875",  # 톤다운 보라
-]
+# 세션 초기화
+if "records" not in st.session_state:
+    st.session_state.records = []
 
-# ✅ 지역별 사진 및 에피소드 정보 (썸네일 이미지로 수정 완료)
-places_info = {
-    "경주시": {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Bulguksa_temple.jpg/320px-Bulguksa_temple.jpg",
-        "story": "불국사에서 단풍을 배경으로 사진 찍음"
-    },
-    "제주시": {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Jeju_Island.jpg/320px-Jeju_Island.jpg",
-        "story": "바람 부는 해변에서 같이 커피 마심"
-    },
-    "여수시": {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Yeosu_night.jpg/320px-Yeosu_night.jpg",
-        "story": "돌산대교 야경을 보며 드라이브"
-    },
-    "철원군": {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/CheorwonDMZ.jpg/320px-CheorwonDMZ.jpg",
-        "story": "DMZ 근처 평화전망대에서 감상"
-    },
-    "부산광역시": {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Busan_night.jpg/320px-Busan_night.jpg",
-        "story": "광안리에서 밤바다 산책"
-    },
-    "제천시": {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Cheongpung_Lake.jpg/320px-Cheongpung_Lake.jpg",
-        "story": "청풍호반길에서 드라이브"
-    },
-    "양평군": {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Dumulmeori.jpg/320px-Dumulmeori.jpg",
-        "story": "두물머리에서 해돋이 감상"
-    }
-}
+# 🔽 사용자 입력 영역
+st.title("📸 나만의 여행기록 지도")
+st.markdown("성룡이와 함께한 여행지를 직접 기록해보세요. 사진과 이야기가 지도에 나타납니다.")
 
-visited_places = list(places_info.keys())
+with st.form("travel_form"):
+    place_name = st.selectbox("여행한 지역을 선택하세요", [
+        "경주시", "제주시", "여수시", "철원군", "부산광역시", "제천시", "양평군"
+    ])
+    story = st.text_area("여행 에피소드를 적어주세요", max_chars=200)
+    image_file = st.file_uploader("여행 사진을 업로드하세요 (JPG/PNG)", type=["jpg", "jpeg", "png"])
+    submitted = st.form_submit_button("📍 지도에 추가하기")
 
-# 지도 생성 (더 세련된 지도 스타일)
+    if submitted:
+        if not story:
+            st.warning("에피소드를 입력해주세요.")
+        elif not image_file:
+            st.warning("사진을 업로드해주세요.")
+        else:
+            file_id = str(uuid.uuid4())[:8]
+            file_path = os.path.join(UPLOAD_FOLDER, f"{file_id}.jpg")
+            img = Image.open(image_file)
+            img.save(file_path)
+
+            st.session_state.records.append({
+                "place": place_name,
+                "story": story,
+                "image_path": file_path
+            })
+            st.success(f"✅ {place_name}이(가) 지도에 추가되었습니다.")
+
+# 🔽 지도 만들기
 m = folium.Map(location=[36.5, 127.8], zoom_start=7, tiles="CartoDB positron")
 
-# GeoJSON 파일 로드
-with open("skorea_municipalities_geo_simple.json", encoding='utf-8') as f:
+# GeoJSON 로딩
+with open("skorea_municipalities_geo_simple.json", encoding="utf-8") as f:
     geo_data = json.load(f)
 
-# 각 지역 색칠 및 팝업 생성
+# 🌈 컬러 팔레트
+color_palette = ["#E63946", "#2A9D8F", "#F4A261", "#457B9D", "#B5838D", "#6D6875", "#A8DADC"]
+
+# 🔽 지도에 기록 반영
 for idx, feature in enumerate(geo_data["features"]):
     name = feature["properties"]["name"]
-    is_visited = name in visited_places
+    matched = [r for r in st.session_state.records if r["place"] == name]
 
-    if is_visited:
+    if matched:
+        record = matched[-1]  # 가장 최근 기록
         color = color_palette[idx % len(color_palette)]
         opacity = 0.85
         border = "black"
-        weight = 2.5
+        weight = 2
 
-        info = places_info[name]
         popup_html = f"""
-        <div style="width:230px;">
-            <h4 style="margin-bottom:4px;">{name}</h4>
-            <img src="{info['image']}" width="210" style="border-radius:6px;"><br>
-            <p style="margin-top:4px;">{info['story']}</p>
+        <div style="width:220px;">
+            <h4>{name}</h4>
+            <img src="data:image/jpeg;base64,{(open(record['image_path'], 'rb').read()).encode('base64').decode()}" width="200" style="border-radius:6px;"><br>
+            <p>{record['story']}</p>
         </div>
         """
         popup = folium.Popup(popup_html, max_width=250)
     else:
         color = "#f0f0f0"
         opacity = 0.03
-        border = "#cccccc"
+        border = "#ccc"
         weight = 0.5
         popup = None
 
@@ -98,5 +93,6 @@ for idx, feature in enumerate(geo_data["features"]):
         popup=popup
     ).add_to(m)
 
-# Streamlit에 지도 출력
+# 🔽 지도 표시
+st.subheader("🗺️ 나의 여행지 지도")
 st_folium(m, width=1000, height=650)
