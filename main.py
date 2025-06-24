@@ -1,4 +1,5 @@
 import plotly.express as px
+import pandas as pd
 
 df = pd.DataFrame({
     '장소': ['경복궁', '남산타워'],
