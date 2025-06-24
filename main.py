@@ -22,31 +22,31 @@ color_palette = [
 places_info = {
     "경주시": {
         "image": "https://upload.wikimedia.org/wikipedia/commons/6/65/Bulguksa_temple.jpg",
-        "story": "불국사에서 단풍을 배경으로 사진 찍음"
+        "story": "약혼함"
     },
     "제주시": {
         "image": "https://upload.wikimedia.org/wikipedia/commons/e/e5/Jeju_Island.jpg",
-        "story": "바람 부는 해변에서 같이 커피 마심"
+        "story": "스노쿨링&올레길"
     },
     "여수시": {
         "image": "https://upload.wikimedia.org/wikipedia/commons/e/e9/Yeosu_night.jpg",
-        "story": "돌산대교 야경을 보며 드라이브"
+        "story": "금오도 트레킹"
     },
     "철원군": {
         "image": "https://upload.wikimedia.org/wikipedia/commons/b/bf/CheorwonDMZ.jpg",
-        "story": "DMZ 근처 평화전망대에서 감상"
+        "story": "DMZ 뮤직 페스티벌 & 노동당사"
     },
     "부산광역시": {
         "image": "https://upload.wikimedia.org/wikipedia/commons/5/55/Busan_night.jpg",
-        "story": "광안리에서 밤바다 산책"
+        "story": "광안리 불꽃축제"
     },
     "제천시": {
         "image": "https://upload.wikimedia.org/wikipedia/commons/0/09/Cheongpung_Lake.jpg",
-        "story": "청풍호반길에서 드라이브"
+        "story": "온천"
     },
     "양평군": {
         "image": "https://upload.wikimedia.org/wikipedia/commons/d/d5/Dumulmeori.jpg",
-        "story": "두물머리에서 해돋이 감상"
+        "story": "두물머리에서 핫도그"
     }
 }
 
