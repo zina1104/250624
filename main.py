@@ -18,48 +18,48 @@ color_palette = [
     "#6D6875",  # 톤다운 보라
 ]
 
-# ✅ 지역별 사진 및 에피소드 정보
+# ✅ 지역별 사진 및 에피소드 정보 (썸네일 이미지로 수정 완료)
 places_info = {
     "경주시": {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/6/65/Bulguksa_temple.jpg",
-        "story": "약혼함"
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Bulguksa_temple.jpg/320px-Bulguksa_temple.jpg",
+        "story": "불국사에서 단풍을 배경으로 사진 찍음"
     },
     "제주시": {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/e/e5/Jeju_Island.jpg",
-        "story": "스노쿨링&올레길"
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Jeju_Island.jpg/320px-Jeju_Island.jpg",
+        "story": "바람 부는 해변에서 같이 커피 마심"
     },
     "여수시": {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/e/e9/Yeosu_night.jpg",
-        "story": "금오도 트레킹"
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Yeosu_night.jpg/320px-Yeosu_night.jpg",
+        "story": "돌산대교 야경을 보며 드라이브"
     },
     "철원군": {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/b/bf/CheorwonDMZ.jpg",
-        "story": "DMZ 뮤직 페스티벌 & 노동당사"
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/CheorwonDMZ.jpg/320px-CheorwonDMZ.jpg",
+        "story": "DMZ 근처 평화전망대에서 감상"
     },
     "부산광역시": {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/5/55/Busan_night.jpg",
-        "story": "광안리 불꽃축제"
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Busan_night.jpg/320px-Busan_night.jpg",
+        "story": "광안리에서 밤바다 산책"
     },
     "제천시": {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/0/09/Cheongpung_Lake.jpg",
-        "story": "온천"
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Cheongpung_Lake.jpg/320px-Cheongpung_Lake.jpg",
+        "story": "청풍호반길에서 드라이브"
     },
     "양평군": {
-        "image": "https://upload.wikimedia.org/wikipedia/commons/d/d5/Dumulmeori.jpg",
-        "story": "두물머리에서 핫도그"
+        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Dumulmeori.jpg/320px-Dumulmeori.jpg",
+        "story": "두물머리에서 해돋이 감상"
     }
 }
 
 visited_places = list(places_info.keys())
 
-# 지도 생성 (고급 스타일)
+# 지도 생성 (더 세련된 지도 스타일)
 m = folium.Map(location=[36.5, 127.8], zoom_start=7, tiles="CartoDB positron")
 
-# GeoJSON 파일 열기
+# GeoJSON 파일 로드
 with open("skorea_municipalities_geo_simple.json", encoding='utf-8') as f:
     geo_data = json.load(f)
 
-# 각 지역 그리기
+# 각 지역 색칠 및 팝업 생성
 for idx, feature in enumerate(geo_data["features"]):
     name = feature["properties"]["name"]
     is_visited = name in visited_places
@@ -70,7 +70,6 @@ for idx, feature in enumerate(geo_data["features"]):
         border = "black"
         weight = 2.5
 
-        # 팝업 HTML
         info = places_info[name]
         popup_html = f"""
         <div style="width:230px;">
@@ -80,7 +79,6 @@ for idx, feature in enumerate(geo_data["features"]):
         </div>
         """
         popup = folium.Popup(popup_html, max_width=250)
-
     else:
         color = "#f0f0f0"
         opacity = 0.03
@@ -100,5 +98,5 @@ for idx, feature in enumerate(geo_data["features"]):
         popup=popup
     ).add_to(m)
 
-# Streamlit 출력
+# Streamlit에 지도 출력
 st_folium(m, width=1000, height=650)
